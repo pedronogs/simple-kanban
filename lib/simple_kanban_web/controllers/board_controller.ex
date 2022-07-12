@@ -1,23 +1,19 @@
-defmodule SimpleKanbanWeb.TaskController do
+defmodule SimpleKanbanWeb.BoardController do
   use SimpleKanbanWeb, :controller
-  alias SimpleKanban.{Repo, Task, Utils}
+  alias SimpleKanban.{Repo, Board, Utils}
   import Ecto.Query
 
-  # Query all tasks by 'panel_id'
-  def index(conn, params) do
-    case Repo.all(from t in Task, where: t.panel_id == ^params["panel_id"]) do
+  def index(conn, _params) do
+    case Repo.all(from b in Board, where: b.discarded == false) do
       nil ->
         conn
         |> put_status(:not_found)
         |> json(%{
-          message: "No tasks found for this panel"
+          message: "No active boards found"
         })
 
-      tasks ->
-        res =
-          Enum.map(tasks, fn x ->
-            %{task_id: x.id, content: x.content, panel_id: x.panel_id, done: x.done}
-          end)
+      board ->
+        res = Enum.map(board, fn x -> %{id: x.id, name: x.name} end)
 
         conn
         |> put_status(:ok)
@@ -26,31 +22,32 @@ defmodule SimpleKanbanWeb.TaskController do
   end
 
   def show(conn, params) do
-    case Repo.get(Task, params["id"]) do
+    case Repo.get(Board, params["id"]) do
       nil ->
         conn
         |> put_status(:not_found)
         |> json(%{
-          message: "Task not found"
+          message: "No board found"
         })
 
-      task ->
+      board ->
         conn
         |> put_status(:ok)
-        |> json(%{id: task.id, panel_id: task.panel_id, content: task.content})
+        |> json(%{id: board.id, name: board.name, discarded: board.discarded})
     end
   end
 
   def create(conn, params) do
-    %Task{}
-    |> Task.changeset(%{panel_id: params["panel_id"], content: params["content"]})
+    %Board{}
+    |> Board.changeset(%{name: params["name"]})
     |> Repo.insert()
     |> case do
-      {:ok, _task} ->
+      {:ok, board} ->
         conn
         |> put_status(:created)
         |> json(%{
-          message: "Task created succesfully"
+          message: "Board created succesfully",
+          id: board.id
         })
 
       {:error, %Ecto.Changeset{} = changeset} ->
@@ -62,7 +59,7 @@ defmodule SimpleKanbanWeb.TaskController do
         conn
         |> put_status(:internal_server_error)
         |> json(%{
-          message: "Error creating task"
+          message: "Error creating board"
         })
     end
   end

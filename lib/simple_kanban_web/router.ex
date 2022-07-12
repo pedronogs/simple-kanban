@@ -17,13 +17,29 @@ defmodule SimpleKanbanWeb.Router do
   scope "/", SimpleKanbanWeb do
     pipe_through(:browser)
 
-    get("/", PageController, :index)
+    get("/", HomeController, :index)
   end
 
   scope "/tasks", SimpleKanbanWeb do
     pipe_through(:api)
 
-    resources("/", TaskController, only: [:show, :create])
+    resources("/", TaskController, only: [:create, :show])
+  end
+
+  scope "/panels", SimpleKanbanWeb do
+    pipe_through(:api)
+
+    resources("/", PanelController, only: [:create, :show])
+
+    get("/:panel_id/tasks", TaskController, :index)
+  end
+
+  scope "/boards", SimpleKanbanWeb do
+    pipe_through(:api)
+
+    resources("/", BoardController, only: [:create, :index, :show])
+
+    get("/:board_id/panels", PanelController, :index)
   end
 
   # Other scopes may use custom stacks.
