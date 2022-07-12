@@ -1,4 +1,4 @@
-defmodule SimpleKanbanWeb.PageController do
+defmodule SimpleKanbanWeb.HomeController do
   use SimpleKanbanWeb, :controller
 
   def index(conn, _params) do
