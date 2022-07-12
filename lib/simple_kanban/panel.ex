@@ -3,6 +3,7 @@ defmodule SimpleKanban.Panel do
   import Ecto.Changeset
 
   schema "panels" do
+    field :name, :string
     field :board_id, :id
     field :discarded, :boolean, default: false
 
@@ -12,5 +13,7 @@ defmodule SimpleKanban.Panel do
   @doc false
   def changeset(panel, attrs) do
     panel
+    |> cast(attrs, [:name, :board_id, :discarded])
+    |> validate_required([:name, :board_id])
   end
 end
