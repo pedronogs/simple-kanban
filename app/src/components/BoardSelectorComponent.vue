@@ -1,77 +1,113 @@
 <template>
-	<div id="board-selector-div">
-		<div v-for="board in boards" :key="board.id" class="board-index">
-			{{ board.name }}
-		</div>
+	<div id="board-selector" class="full-width">
+		<q-btn-toggle
+			no-caps
+			toggle-color="primary"
+			color="grey-3"
+			text-color="primary"
+			v-model="selectedBoard"
+			:options="boards"
+			class="button-outline q-mr-md"
+		/>
 
-		<div id="board-selector-plus">
-			<i class="fa fa-plus"></i>
-		</div>
+		<q-btn
+			class="action-button text-primary round-border outline-icon"
+			@click="createBoard = true"
+		>
+			<q-icon name="fas fa-plus" size="xs"></q-icon>
+		</q-btn>
+
+		<q-btn
+			class="action-button text-primary round-border outline-icon q-ml-auto"
+		>
+			<q-icon name="fas fa-gear" size="xs"></q-icon>
+		</q-btn>
+
+		<!-- Dialogs -->
+		<q-dialog v-model="createBoard" persistent>
+			<q-card style="min-width: 350px">
+				<q-card-section>
+					<div class="text-h6">New Board Name</div>
+				</q-card-section>
+
+				<q-card-section class="q-pt-none">
+					<q-input
+						dense
+						v-model="newBoardName"
+						autofocus
+						@keyup.enter="createBoard = false"
+					/>
+				</q-card-section>
+
+				<q-card-actions align="right" class="text-primary">
+					<q-btn flat label="Cancel" v-close-popup />
+					<q-btn flat label="Create" v-close-popup @click="addBoardEvent" />
+				</q-card-actions>
+			</q-card>
+		</q-dialog>
 	</div>
 </template>
 
 <script lang="ts">
-	import { defineComponent } from "vue";
+	import { defineComponent, PropType } from "vue";
+	import { useQuasar } from "quasar";
+
+	import type { Board } from "../types/types";
 
 	export default defineComponent({
 		name: "BoardSelectorComponent",
+		setup() {
+			const $q = useQuasar();
+
+			return {
+				triggerNegative(message: string) {
+					$q.notify({
+						type: "negative",
+						message: message,
+						position: "top-right",
+					});
+				},
+			};
+		},
 		data() {
 			return {
-				boards: [
-					{
-						id: 0,
-						name: "Quadro 01",
-					},
-					{
-						id: 1,
-						name: "Quadro 02",
-					},
-				],
+				newBoardName: "" as string,
+				createBoard: false as boolean,
+				selectedBoard: 0 as number,
 			};
 		},
 		props: {
-			msg: String,
+			boards: {
+				type: Array as PropType<Array<Board>>,
+				required: true,
+			},
+		},
+		methods: {
+			addBoardEvent() {
+				this.$emit("add-board", this.newBoardName);
+			},
 		},
 	});
 </script>
 
-<style scoped>
-	#board-selector-div {
-		width: 100%;
-		height: 100%;
+<style lang="sass" scoped>
+	#board-selector
+		display: flex
+		flex-direction: row
+		justify-content: flex-start
+		align-items: center
 
-		display: flex;
-		flex-direction: row;
-		justify-content: flex-start;
-		align-items: center;
-	}
+	.action-button
+		height: 60%
+		width: 2%
 
-	.board-index {
-		width: 10%;
-		height: 100%;
+	.button-outline
+		border: 1px solid #027be3
 
-		display: flex;
-		align-items: center;
-		justify-content: center;
+	.round-border
+		background-color: white
+		border-radius: 80px
 
-		margin-right: 15px;
-
-		border: 2px solid rgb(192, 192, 192);
-		border-radius: 5px;
-		box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
-			rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
-	}
-
-	#board-selector-plus {
-		height: 25px;
-		width: 25px;
-
-		display: flex;
-		justify-content: center;
-		align-items: center;
-
-		background-color: white;
-		border: 2px solid rgb(73, 73, 73);
-		border-radius: 50px;
-	}
+	.outline-icon
+		border: 1px solid #027be3
 </style>
