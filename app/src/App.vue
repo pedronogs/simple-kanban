@@ -5,6 +5,14 @@
 </template>
 
 <style lang="sass">
+	@font-face
+		font-family: 'Montserrat'
+		src: url("./assets/fonts/montserrat/montserrat-variable.ttf")
+
+	*
+		font-family: 'Montserrat', sans-serif
+
+
 	html, body
 		width: 100%
 		height: 100%

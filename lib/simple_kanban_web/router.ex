@@ -37,7 +37,7 @@ defmodule SimpleKanbanWeb.Router do
   scope "/boards", SimpleKanbanWeb do
     pipe_through(:api)
 
-    resources("/", BoardController, only: [:create, :index, :show])
+    resources("/", BoardController, only: [:create, :index, :show, :delete])
 
     get("/:board_id/panels", PanelController, :index)
   end

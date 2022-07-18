@@ -63,4 +63,35 @@ defmodule SimpleKanbanWeb.BoardController do
         })
     end
   end
+
+  def delete(conn, params) do
+    case Repo.one(from b in Board, where: b.discarded == false and b.id == ^params["id"]) do
+      nil ->
+        conn
+        |> put_status(:not_found)
+        |> json(%{
+          message: "Board not found"
+        })
+
+      board ->
+        discarded_board = Ecto.Changeset.change(board, %{discarded: true})
+
+        case Repo.update(discarded_board) do
+          {:ok, board} ->
+            conn
+            |> put_status(:ok)
+            |> json(%{
+              message: "Board deleted succesfully",
+              id: board.id
+            })
+
+          {:error} ->
+            conn
+            |> put_status(:internal_server_error)
+            |> json(%{
+              message: "Error deleting board"
+            })
+        end
+    end
+  end
 end

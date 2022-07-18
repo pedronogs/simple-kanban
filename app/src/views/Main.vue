@@ -1,7 +1,9 @@
 <template>
 	<div id="main" class="fit q-pa-xl">
+		<h3 class="text-weight-medium">Simple Kanban</h3>
 		<board-selector-component
 			@add-board="addBoard"
+			@delete-board="deleteBoard"
 			:boards="boards"
 		></board-selector-component>
 		<board-component class="q-mt-md"></board-component>
@@ -11,6 +13,7 @@
 <script lang="ts">
 	import { defineComponent } from "vue";
 	import { useQuasar } from "quasar";
+	import axios from "axios";
 
 	import type { Board } from "../types/types";
 
@@ -33,21 +36,32 @@
 				},
 			};
 		},
+		created() {
+			axios.defaults.baseURL = "http://localhost:4000";
+		},
+		beforeMount() {
+			this.getBoards();
+		},
 		data() {
 			return {
-				boards: [
-					{
-						value: 0,
-						label: "Quadro 01",
-					},
-					{
-						value: 1,
-						label: "Quadro 02",
-					},
-				] as Array<Board>,
+				boards: [] as Array<Board>,
 			};
 		},
 		methods: {
+			getBoards() {
+				axios.get("/boards").then((response) => {
+					let boards = response.data.map(
+						(board: { id: number; name: string }) => {
+							return {
+								value: board.id,
+								label: board.name,
+							};
+						}
+					);
+
+					this.boards = boards;
+				});
+			},
 			addBoard(newBoardName: string) {
 				if (newBoardName.length < 3) {
 					this.triggerNegative(
@@ -65,10 +79,31 @@
 					return;
 				}
 
-				this.boards.push({
-					value: this.boards.length,
-					label: newBoardName,
-				});
+				axios
+					.post("/boards", { name: newBoardName })
+					.then((response) => {
+						let board: Board = {
+							value: response.data.id,
+							label: newBoardName,
+						};
+
+						this.boards.push(board);
+					})
+					.catch((error) => {
+						this.triggerNegative(error.response.data.message);
+					});
+			},
+			deleteBoard(selectedBoard: number) {
+				axios
+					.delete(`/boards/${selectedBoard}`)
+					.then(() => {
+						this.boards = this.boards.filter(
+							(board: Board) => board.value !== selectedBoard
+						);
+					})
+					.catch((error) => {
+						this.triggerNegative(error.response.data.message);
+					});
 			},
 		},
 	});

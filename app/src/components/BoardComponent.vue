@@ -49,7 +49,6 @@
 		flex-direction: row
 		align-items: center
 
-		border: 2px solid rgb(192, 192, 192)
 		border-radius: 5px
-		box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px
+		box-shadow:0.7px 3.2px 3.3px rgba(0, 0, 0, 0.022), 1px 4.6px 11.2px rgba(0, 0, 0, 0.05),2px 9px 50px rgba(0, 0, 0, 0.1)
 </style>

@@ -42,6 +42,7 @@
 	.panel-div {
 		height: 95%;
 		width: 25%;
+		background: rgba(255, 255, 255, 0.23);
 	}
 
 	.panel-header {
